@@ -38,7 +38,7 @@ FusionEKF::FusionEKF() {
     * Set the process and measurement noises
   */
   //DEBUG
-  cout << "FusionEKF.cpp: Finished Constructor";
+  cout << "FusionEKF.cpp: Finished Constructor\n";
 
 }
 
@@ -64,31 +64,32 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     cout << "EKF: " << endl;
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
-    //DEBUG
-    cout << "FusionEKF.cpp: set x to 1,1,1,1";
+    //
+
+    cout << "FusionEKF.cpp: set x to 1,1,1,1" << endl;
     ekf_.P_ = MatrixXd(4, 4);
     previous_timestamp_ = measurement_pack.timestamp_;
     //DEBUG
-    cout << "FusionEKF.cpp: initialized P and set timestamp";
+    cout << "FusionEKF.cpp: initialized P and set timestamp"<<endl;
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
       */
       //DEBUG
-      cout << "FusionEKF.cpp: getting rho, phi...";
+      cout << "FusionEKF.cpp: getting rho, phi...\n";
       float rho = measurement_pack.raw_measurements_(0);
       float phi = measurement_pack.raw_measurements_(1);
-      float phi_dot = measurement_pack.raw_measurements_(2);
+      float rho_dot = measurement_pack.raw_measurements_(2);
       //DEBUG
-      cout << "FusionEKF.cpp: initializing x_ values";
+      cout << "FusionEKF.cpp: initializing x_ values\n";
       ekf_.x_(0) =  rho * cos(phi);
       ekf_.x_(1) = rho * sin(phi);
-      ekf_.x_(2) = phi_dot * cos(phi);
-      ekf_.x_(3) = phi_dot * sin(phi);
+      ekf_.x_(2) = rho_dot * cos(phi);
+      ekf_.x_(3) = rho_dot * sin(phi);
 
       //DEBUG
-      cout << "FusionEKF.cpp: initializing P_ values";
+      cout << "FusionEKF.cpp: initializing P_ values\n";
 
       ekf_.P_ << 0.1, 0, 0, 0,
         			  0, 0.1, 0, 0,
@@ -106,16 +107,19 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       ekf_.x_(3) = 0;
 
       ekf_.P_ << R_laser_(0,0), 0, 0, 0,
-  			         0, R_laser_(2,2), 0, 0,
+  			         0, R_laser_(1,1), 0, 0,
   			         0, 0, 1000, 0,
   			         0, 0, 0, 1000;
+     //DEBUG
+     cout << "FusionEKF.cpp: Initialized with LASER data"<<endl;
+
 
     }
 
     // done initializing, no need to predict or update
     is_initialized_ = true;
     //DEBUG
-    cout << "FusionEKF.cpp: Finished First Initialization";
+    cout << "FusionEKF.cpp: Finished First Initialization\n";
 
     return;
   }
@@ -144,17 +148,16 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     float dt2 = dt*dt;
   	float dt3 = dt2*dt;
   	float dt4 = dt2*dt2;
-  	ekf_.Q_ = MatrixXd(4,4);
   	ekf_.Q_ << dt4*noise_ax/4, 0, dt3*noise_ax/2, 0,
   	         0, dt4*noise_ay/4, 0, dt3*noise_ay/2,
   	         dt3*noise_ax/2, 0, dt2*noise_ax, 0,
   	         0, dt3*noise_ay/2, 0, dt2*noise_ay;
-//DEBUG
-cout << "FusionEKF.cpp: About to predict";
+  //DEBUG
+  cout << "FusionEKF.cpp: About to predict\n";
 
   ekf_.Predict();
   //DEBUG
-  cout << "FusionEKF.cpp: Predict complete";
+  cout << "FusionEKF.cpp: Predict complete\n";
 
   /*****************************************************************************
    *  Update
@@ -166,25 +169,30 @@ cout << "FusionEKF.cpp: About to predict";
      * Update the state and covariance matrices.
    */
    //DEBUG
-   cout << "FusionEKF.cpp: Measurement update...";
+   cout << "FusionEKF.cpp: Measurement update...\n";
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // Radar updates
+    //DEBUG
+    cout << "FusionEKF.cpp: In RADAR update\n";
     ekf_.H_ = tools.CalculateJacobian(ekf_.x_);
     ekf_.R_ = R_radar_;
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);
     //DEBUG
-    cout << "FusionEKF.cpp: RADAR update complete";
+    cout << "FusionEKF.cpp: RADAR update complete\n";
 
   } else {
     // Laser updates
+    //DEBUG
+    cout << "FusionEKF.cpp: In LIDAR update\n";
+
     ekf_.H_ = MatrixXd(2,4);
     ekf_.H_ << 1,0,0,0,
               0,1,0,0;
     ekf_.R_ = R_laser_;
     ekf_.Update(measurement_pack.raw_measurements_);
     //DEBUG
-    cout << "FusionEKF.cpp: LIDAR update complete";
+    cout << "FusionEKF.cpp: LIDAR update complete\n";
 
   }
 
