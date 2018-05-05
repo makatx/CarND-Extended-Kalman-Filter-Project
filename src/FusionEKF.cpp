@@ -64,9 +64,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     cout << "EKF: " << endl;
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
-    //
-
-    cout << "FusionEKF.cpp: set x to 1,1,1,1" << endl;
     ekf_.P_ = MatrixXd(4, 4);
     previous_timestamp_ = measurement_pack.timestamp_;
     //DEBUG
@@ -85,8 +82,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       cout << "FusionEKF.cpp: initializing x_ values\n";
       ekf_.x_(0) =  rho * cos(phi);
       ekf_.x_(1) = rho * sin(phi);
-      ekf_.x_(2) = rho_dot * cos(phi);
-      ekf_.x_(3) = rho_dot * sin(phi);
+      // ekf_.x_(2) = rho_dot * cos(phi);
+      // ekf_.x_(3) = rho_dot * sin(phi);
+      ekf_.x_(2) = 0;
+      ekf_.x_(3) = 0;
 
       //DEBUG
       cout << "FusionEKF.cpp: initializing P_ values\n";

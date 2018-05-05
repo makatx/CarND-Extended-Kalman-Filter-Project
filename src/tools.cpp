@@ -63,7 +63,7 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 	// }
 	//compute the Jacobian matrix
     float hyp = sqrt(px*px + py*py);
-    if (hyp==0) {
+    if (hyp<0.0001) {
       hyp = 0.0001;
     }
     float h11 = px / hyp;
