@@ -21,6 +21,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
     rmse << -1,-1,-1,-1;
     return rmse;
   }
+  rmse << 0,0,0,0;
   for(int i=0; i < estimations.size(); ++i){
         VectorXd e = estimations[i];
         VectorXd g = ground_truth[i];
@@ -56,12 +57,15 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 
 
 	//check division by zero
-	if (px==0 && py==0) {
-	    cout << "Computation by Zero" << endl;
-	    return Hj;
-	}
+	// if (px==0 && py==0) {
+	//     cout << "Computation by Zero" << endl;
+	//     return Hj;
+	// }
 	//compute the Jacobian matrix
     float hyp = sqrt(px*px + py*py);
+    if (hyp==0) {
+      hyp = 0.0001;
+    }
     float h11 = px / hyp;
     float h12 = py / hyp;
     float h21 = -py / (px*px + py*py);
